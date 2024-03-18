@@ -42,11 +42,9 @@ result.1438 <- atime::atime(
     dt.rowInd <- data.table(sink=1:900)
   },
   seconds.limit = 1,
-  expr.list = list(
-    executionTime1 = dt.rowInd[1:nrow(dt.rowInd),x[as.character(sink),]],
-    
-    executionTime2 = dt.rowInd[,x[as.character(sink),]]
-  )
+  executionTime1 = dt.rowInd[1:nrow(dt.rowInd),x[as.character(sink),]],
+  
+  executionTime2 = dt.rowInd[,x[as.character(sink),]]
 )
 ```
 

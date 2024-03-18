@@ -87,7 +87,7 @@ atime.4733 <- atime::atime(
     dfb_int <- data.table(id = seq_len(N), val = rnorm(N))
   },
   seconds.limit = 0.01,
-  expr.list = list(
+  
     data.table = merge.data.table(dfa_char, dfb_char, by = "id", sort = FALSE),
     dplyr = inner_join(dfa_char, dfb_char, by = "id"),
     
@@ -97,7 +97,7 @@ atime.4733 <- atime::atime(
     data.table_int = merge.data.table(dfa_int, dfb_int, by = "id", sort = FALSE),
     dplyr_int = inner_join(dfa_int, dfb_int, by = "id")
     
-  )
+  
 )
 ```
 
