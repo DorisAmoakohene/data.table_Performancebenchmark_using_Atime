@@ -1,0 +1,73 @@
+---
+title: "j=list(var) slower than j=var, with by= #7122"
+author: "Doris Amoakohene"
+date: "2024-03-14"
+output: html_document
+---
+
+
+
+
+```{r}
+
+library(atime)
+library(ggplot2)
+library(data.table)
+
+```
+
+
+```{r}
+result.withby <- atime::atime(
+  N = 1:1e7,
+  setup = {
+    #DT <- data.table(x=rep(N, 2L), y=1L)
+    dd <- data.table(x=N,key="x")
+  },
+  seconds.limit = 2,
+  expr.list = list(
+    #ans1 <- DT[, .N, by=x],
+    #ans2 <- DT[, list(N = .N), by=x]#,
+    de <- dd[dd,1,by=.EACHI],
+    df <- dd[dd,list(1),by=.EACHI],
+    dg <- dd[dd,x,by=.EACHI],
+    dh <- dd[dd,list(x),by=.EACHI]
+  )
+)
+```
+
+
+```{r}
+plot(result.withby)+
+  labs(title = "j=list(var) slower than j=var, with by= #7122")
+
+png("result.withby.png")
+plot(result.withby)+
+  labs(title = "j=list(var) slower than j=var, with by= #7122")
+dev.off()
+```
+
+```{r}
+result.withby <- atime::atime(
+  N = 10^seq(1,7),
+  setup = {
+    DT <- data.table(x=rep(1:1e7, 2L), y=1L)
+    expr1 <- NULL
+    expr2 <- NULL
+    list(DT = DT, expr1 = expr1, expr2 = expr2)
+  },
+  seconds.limit = 2,
+  expr.list = list(
+    expr1 = {
+      expr1 <- DT[, .N, by=x]
+      NULL
+    },
+    expr2 = {
+      expr2 <- DT[, list(N = .N), by=x]
+      NULL
+    }
+  ),
+    2`  times = result.withby``````````````````expr.names = c("expr1", "expr2")
+)
+```
+
