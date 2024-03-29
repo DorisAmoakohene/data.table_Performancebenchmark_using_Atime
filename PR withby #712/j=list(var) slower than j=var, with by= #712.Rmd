@@ -6,6 +6,20 @@ output: html_document
 ---
 
 
+```{r}
+require(data.table) ## 1.9.3
+DT <- data.table(x=rep(1:1e7, 2L), y=1L)
+system.time(ans1 <- DT[, .N, by=x])            ## 3.5 sec
+system.time(ans2 <- DT[, list(N = .N), by=x])  ## 5.8 sec
+
+#Similar cases:
+
+dd <- data.table(x=1:1e7,key="x")
+system.time(de <- dd[dd,1,by=.EACHI])       ## 2.1 sec
+system.time(df <- dd[dd,list(1),by=.EACHI]) ## 3.8
+system.time(dg <- dd[dd,x,by=.EACHI])       ## 2.3
+system.time(dh <- dd[dd,list(x),by=.EACHI]) ## 4.8
+```
 
 
 ```{r}
@@ -19,24 +33,34 @@ library(data.table)
 
 ```{r}
 result.withby <- atime::atime(
-  N = 1:1e7,
+  N =unique(as.integer(1:1e9)),
   setup = {
-    #DT <- data.table(x=rep(N, 2L), y=1L)
+    DT <- data.table(x=rep(N, 2L), y=1L)
     dd <- data.table(x=N,key="x")
   },
-  seconds.limit = 2,
-  expr.list = list(
-    #ans1 <- DT[, .N, by=x],
-    #ans2 <- DT[, list(N = .N), by=x]#,
-    de <- dd[dd,1,by=.EACHI],
-    df <- dd[dd,list(1),by=.EACHI],
-    dg <- dd[dd,x,by=.EACHI],
-    dh <- dd[dd,list(x),by=.EACHI]
-  )
+  seconds.limit = 0.001,
+  
+    ans1 = DT[, .N, by=x],
+    ans2 = DT[, list(N = .N), by=x],
+    de = dd[dd,1,by=.EACHI],
+    df =  dd[dd,list(1),by=.EACHI],
+    dg = dd[dd,x,by=.EACHI],
+    dh = dd[dd,list(x),by=.EACHI]
+  
 )
 ```
 
+require(data.table) ## 1.9.3
+DT <- data.table(x=rep(1:1e7, 2L), y=1L)
+system.time(ans1 <- DT[, .N, by=x])            ## 3.5 sec
+system.time(ans2 <- DT[, list(N = .N), by=x])  ## 5.8 sec
+Similar cases:
 
+dd <- data.table(x=1:1e7,key="x")
+system.time(de <- dd[dd,1,by=.EACHI])       ## 2.1 sec
+system.time(df <- dd[dd,list(1),by=.EACHI]) ## 3.8
+system.time(dg <- dd[dd,x,by=.EACHI])       ## 2.3
+system.time(dh <- dd[dd,list(x),by=.EACHI]) ## 4.8
 ```{r}
 plot(result.withby)+
   labs(title = "j=list(var) slower than j=var, with by= #7122")
@@ -47,27 +71,31 @@ plot(result.withby)+
 dev.off()
 ```
 
+
 ```{r}
-result.withby <- atime::atime(
-  N = 10^seq(1,7),
+result.712 <- atime::atime(
+  N =unique(as.integer(1:1e9)),
   setup = {
-    DT <- data.table(x=rep(1:1e7, 2L), y=1L)
-    expr1 <- NULL
-    expr2 <- NULL
-    list(DT = DT, expr1 = expr1, expr2 = expr2)
+    
+    dd <- data.table(x=N,key="x")
   },
-  seconds.limit = 2,
-  expr.list = list(
-    expr1 = {
-      expr1 <- DT[, .N, by=x]
-      NULL
-    },
-    expr2 = {
-      expr2 <- DT[, list(N = .N), by=x]
-      NULL
-    }
-  ),
-    2`  times = result.withby``````````````````expr.names = c("expr1", "expr2")
+  seconds.limit = 0.001,
+  
+  de = dd[dd,1,by=.EACHI],
+  df =  dd[dd,list(1),by=.EACHI],
+  dg = dd[dd,x,by=.EACHI],
+  dh = dd[dd,list(x),by=.EACHI]
+  
 )
 ```
 
+
+```{r}
+plot(result.712)+
+  labs(title = "j=list(var) slower than j=var, with by= #7122")
+
+png("result.712.png")
+plot(result.712)+
+  labs(title = "j=list(var) slower than j=var, with by= #7122")
+dev.off()
+```

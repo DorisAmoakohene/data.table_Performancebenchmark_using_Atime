@@ -1,0 +1,65 @@
+---
+title: "Performance issue with chained assignment #5408"
+author: "Doris Amoakohene"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+https://github.com/Rdatatable/data.table/issues/5408
+
+
+```{r}
+library(data.table)
+
+df <- data.table(x = round(runif(1e6), 4))
+
+bench::mark(
+  single = copy(df)[, x := as.character(x)][],
+  chained = copy(df)[, x := as.character(x)][, x := x][],
+  check = FALSE, iterations = 30
+)
+#> # A tibble: 2 × 6
+#>   expression      min   median `itr/sec` mem_alloc `gc/sec`
+#>   <bch:expr> <bch:tm> <bch:tm>     <dbl> <bch:byt>    <dbl>
+#> 1 single        750µs   1.33ms    636.      9.48MB   273.  
+#> 2 chained       416ms 490.03ms      2.00   22.97MB     2.42
+```
+
+```{r}
+
+
+library(atime)
+library(ggplot2)
+library(data.table)
+
+```
+
+
+```{r}
+atime.5408 <- atime::atime(
+  N =unique(as.integer(10^seq(1,6))),
+  setup = {
+    df <- data.table(x = round(runif(N), 4))
+  },
+  seconds.limit = 0.01,
+  
+  single = copy(df)[, x := as.character(x)][],
+  chained = copy(df)[, x := as.character(x)][, x := x][],
+  check = FALSE, iterations = 30
+  
+)
+```
+
+```{r}
+png()
+plot(atime.5408)+
+  labs(title = "Performance issue with chained assignment #5408")
+
+png("atime.5408.png")
+plot(atime.5408)+
+  labs(title = "Performance issue with chained assignment #5408")
+dev.off()
+```
+
+
+
